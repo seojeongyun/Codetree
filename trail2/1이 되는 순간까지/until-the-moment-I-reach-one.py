@@ -1,7 +1,6 @@
 N = int(input())
 
-# Please write your code here.
-# Method 1
+# Method 1: 결과만 list에 담아서 나오기
 # def recursive(n, cnt):
 #     if n == 1:
 #         answer.append(cnt)
@@ -20,7 +19,7 @@ N = int(input())
 # print(answer)
 
 
-# Method 2
+# Method 2: 결과를 return-return-return... 하기
 def recursive(n, cnt):
     if n == 1:
         return cnt
