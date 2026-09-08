@@ -1,31 +1,22 @@
-# 격자: NxN
-    # 1: 동전 있는 곳
-    # 0: 동전 없는 곳
+n = int(input())
+grid = [list(map(int, input().split())) for _ in range(n)]
 
-# 3X3 크기의 격자를 잡아, 해당 범위 내에 들어있는 동전의 개수를 최대로 하는 프로그램
+# Please write your code here.
+'''
+nxn 격자 정보/ 동전 O 1 , X 0
+격자 벗어나지 않도록 연속한 3개의 행 연속한 3개의 열 이루는
+3x3영역 내 들어있는 동전 개수 최대
 
-# 시간 제한: 1초
-# 메모리: 64MiB
+풀이 방법: nxn 배열에 3x3 필터 순회
+'''
+coins=0
+for ni in range(n):
+    for nj in range(n):
+        tmp = 0
+        for di in range(3):
+            for dj in range(3):
+                if 0<=ni+di<n and 0<=nj+dj<n:
+                    tmp += grid[ni+di][nj+dj]
+        coins = max(coins, tmp)
+print(coins)
 
-import sys
-input = sys.stdin.readline
-
-N = int(input().strip())
-arr = [list(map(int, input().strip().split())) for _ in range(N)]
-answer = -sys.maxsize
-
-# for si in range(N-2):
-#     for ei in range(si, si+3):
-#         for sj in range(N-2):
-#             for ej in range(sj, sj+3):
-
-answer = -sys.maxsize
-
-for j in range(N-2):
-    for i in range(N-2):
-        max_val = 0
-        for k in range(3):
-            max_val += sum(arr[i+k][j:j+3])
-        answer = max(answer, max_val)
-
-print(answer)
