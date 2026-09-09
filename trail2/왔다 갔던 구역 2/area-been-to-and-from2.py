@@ -48,8 +48,8 @@ for x, dir in cmd:
 
 # print(arr)
 for i in range(len(arr)):
-    if arr[i] >= 2 and len(set(dir_arr[i])) == 2:
-    # if arr[i] >= 2:
+    # if arr[i] >= 2 and len(set(dir_arr[i])) == 2:
+    if arr[i] >= 2:
         answer += 1
 
 # print(arr)
