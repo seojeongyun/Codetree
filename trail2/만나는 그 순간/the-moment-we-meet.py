@@ -1,125 +1,56 @@
 # A, B가 동일한 시작점에서 출발
-# 1초에 1m
-# A는 N번, B는 M번 이동
-# 최초로 만나게 되는 시간은 몇 초뒤?
+    # 1초에 1m 이동
+# 명령어
+    # 방향, 시간이 주어짐.
+        # R 5 면 오른쪽으로 5m 이동, 5초 소요
+    # A는 N개의 명령어
+    # B는 M개의 명령어
+    # 이동 시간은 항상 동일
+    # 처음 이동 방향은 서로 다름
+# A,B가 최초로 만나게 되는 시간은 몇 초 뒤인가
 
 import sys
 input = sys.stdin.readline
 
+# 1,000개의 명령어가 주어지고, 한 명령어당 1,000초 이동 가능하므로, 1,000*1,000 = 1,000,000
+MAX_SIZE = 1000001
+
 N, M = map(int, input().strip().split())
+A = [0] * MAX_SIZE
+B = [0] * MAX_SIZE
 
-# # N이 최대 1천번, t가 최대 1천번이므로, 왼쪽으로 천 번 이동하는 명령어가 천 개 주어질 수 있음.
-# # 따라서 배열 개수는 2백만 1개로 선언하고, 1백만에서 출발.
-# A = [0] * 2000001
-# B = [0] * 2000001
-
-# start = 1000000
-
-# # A와 B의 명령어 분리
-# A_cmd = []
-# B_cmd = []
-# for _ in range(N):
-#     A_cmd.append(input().strip().split())
-
-# for _ in range(M):
-#     B_cmd.append(input().strip().split())
-
-# # print(A_cmd)
-# # A 이동에 따른 A 배열 관리
-# A_moved_time = 0
-# for dir, time in A_cmd:
-#     time = int(time)
-#     if dir == 'R':
-#         for i in range(start + 1, start + time + 1):
-#             A_moved_time += 1
-#             A[i] = A_moved_time
-#         start = i
-
-#     elif dir == 'L':
-#         for i in range(start - 1, start - time - 1, -1):
-#             A_moved_time += 1
-#             A[i] = A_moved_time
-#         start = i
-
-# # print(A)
-# start = 1000000
-# B_moved_time = 0
-# for dir, time in B_cmd:
-#     time = int(time)
-#     if dir == 'R':
-#         for i in range(start + 1, start + time + 1):
-#             B_moved_time += 1
-#             B[i] = B_moved_time
-#         start = i
-
-#     elif dir == 'L':
-#         for i in range(start - 1, start - time - 1, -1):
-#             B_moved_time += 1
-#             B[i] = B_moved_time
-#         start = i
-
-# # print(A)
-# # print(B)
-# # 정답 처리
-# for i in range(2000001):
-#     if A[i] == B[i] and A[i] != 0:
-#         print(A[i])
-#         break
-
-# else:
-#     print(-1)
-
-
-# A와 B의 명령어 분리
-A_cmd = []
-B_cmd = []
+# A 이동 관리
+A_start = 0
+total_time = 0
 for _ in range(N):
-    A_cmd.append(input().strip().split())
+    dir, time = input().strip().split()
+    total_time += int(time)
+    for t in range(A_start, A_start+int(time)):
+        if dir == 'R':
+            A[t] = A[t-1] + 1
+        else:
+            A[t] = A[t-1] - 1
+    A_start += int(time)
 
+# B 이동 관리
+B_start = 0
 for _ in range(M):
-    B_cmd.append(input().strip().split())
-
-# 명령어 최대 개수 1000개, 한 번의 명령어에서 최대 1000초 이동 가능
-# 따라서 MAX_TIME은 1백만, 배열이므로 100만 1.
-# 
-MAX_TIME = 1000001
-A = [sys.maxsize] * MAX_TIME
-B = [sys.maxsize] * MAX_TIME
-
-# A 이동에 따른 A 배열 관리
-A_position = 0
-start = 0
-for dir, time in A_cmd:
-    time = int(time)
-    for i in range(start + 1, start + time + 1):
+    dir, time = input().strip().split()
+    for t in range(B_start, B_start+int(time)):
         if dir == 'R':
-            A_position += 1
-            A[i] = A_position
+            B[t] = B[t-1] + 1
+        else:
+            B[t] = B[t-1] - 1
+    B_start += int(time)
 
-        elif dir == 'L':
-            A_position -= 1
-            A[i] = A_position
-    start = i
-
-# B 이동에 따른 B 배열 관리
-B_position = 0
-start = 0
-for dir, time in B_cmd:
-    time = int(time)
-    for i in range(start + 1, start + time + 1):
-        if dir == 'R':
-            B_position += 1
-            B[i] = B_position
-
-        elif dir == 'L':
-            B_position -= 1
-            B[i] = B_position
-    start = i
-
-for i in range(MAX_TIME):
-    if A[i] == B[i] and A[i] != sys.maxsize:
-        print(i)
+# print(A)
+# print(B)
+# print(A[990:1001])
+# print(B[990:1001])
+# A, B 만나는 위치 확인
+for i in range(1, total_time):
+    if A[i] == B[i]:
+        print(i+1)
         break
-
 else:
     print(-1)
