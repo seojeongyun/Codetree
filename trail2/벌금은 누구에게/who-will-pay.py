@@ -1,19 +1,22 @@
-# N명의 학생
-    # 1번부터 N번까지 번호가 붙여져 있음
-# 한 학생이 K 번 이상 벌칙을 받게 되면 벌금을 내야함.
-# M번에 걸쳐 벌칙에 걸린 학생 번호가 주어질 때, 최초로 벌금을 내는 학생은?
+N, M, K = map(int, input().split())
+student = [int(input()) for _ in range(M)]
 
-import sys
-input = sys.stdin.readline
+# Please write your code here.
+'''
+학생 N, 1~N번호
+한 학생이 K번 이상 벌칙 받으면 벌금
 
-N, M, K = map(int, input().strip().split())
-NUM = [int(input().strip()) for _ in range(M)]
-
-arr = [0] * (N+1)
-for i in NUM:
-    arr[i] += 1
-    if arr[i] >= K:
-        print(i)
+M번에 걸쳐 벌칙에 걸린 학생의 번호 순서대로 주어짐
+최초로 벌금을 내게되는 학생?
+'''
+ans = -1
+pay = [0]*(1+N)
+for m in student:
+    if K == 1:
+        ans = m
         break
-else:
-    print(-1)
+    pay[m] += 1
+    if pay[m] >= K:
+        ans = m
+        break
+print(ans)
