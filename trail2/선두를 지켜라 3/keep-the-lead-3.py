@@ -1,62 +1,66 @@
-# A, B가 동일 시작점에서 같은 방향으로 출발
-    # 도중에 방향 바꾸는 경우 X
-    # A는 N개 명령어
-    # B는 M개 명령어
+N, M = map(int, input().split())
 
-# 명령어
-    # 어떤 속도로 몇 시간 이동했는지 나타내는 v, t
-
-# 명예의 전당
-    # 매 시간마다 가장 앞서있는 사람들을 모아 명예의 전당에 이름을 올림
-    # 두 사람의 위치가 같으면 둘 다 올라감
-    # 처음에 비어있음
-    # 1시간 간격으로 그 시점의 선두 조합을 기록
-    # 새로 기록한 조합이 직전 기록 조합과 다르면 조합이 한 번 바뀐 것
-    # 첫 기록은 항상 한 번 바뀐것으로 간주
-
-# A의 총 이동 시간 == B의 총 이동 시간
-
-# 선두 조합이 몇 번 바뀌었는지 출력
-
-import sys
-input = sys.stdin.readline
-answer = 1 # 첫 기록은 항상 한 번 바뀐 것으로 간주하기에 answer는 1부터 시작
-
-N, M = map(int, input().strip().split())
-
-# 명령어 개수 1,000 * 시간 1,000
-MAX_SIZE = 1000001
-A = [0] * MAX_SIZE
-B = [0] * MAX_SIZE
-
-# A 이동 관리
-A_time = 0 # offset
+# Process A's movements
+v = []
+t = []
 for _ in range(N):
-    v, t = map(int, input().strip().split())
-    for time in range(1, t+1):
-        A[A_time + time] = A[A_time + time-1] + v
-    A_time += time
+    vi, ti = map(int, input().split())
+    v.append(vi)
+    t.append(ti)
 
-# B 이동 관리
-B_time = 0 # offset
+# Process B's movements
+v2 = []
+t2 = []
 for _ in range(M):
-    v, t = map(int, input().strip().split())
-    for time in range(1, t+1):
-        B[B_time + time] = B[B_time + time-1] + v
-    B_time += time
+    vi, ti = map(int, input().split())
+    v2.append(vi)
+    t2.append(ti)
 
-lst = []
-for i in range(A_time+1):
-    if A[i] > B[i]:
-        lst.append('A')
-    elif A[i] < B[i]:
-        lst.append('B')
+# Please write your code here.
+'''
+A,B 동일 시작, 같은 방향
+N,M
+
+매시간마다 그 시점에 가장 앞선 사람들 모아 명예의 전당
+    둘 위치 같으면 둘다
+    첨 비어있음
+    1시간 간격 - 선두 조합 기록
+        새로 기록한 조합이 직전에 기록된 조합과 다르면 조합이 1번 바뀐 것
+        첫 기록은 1번 바뀐것으로 카운팅
+    
+명예의 전당에 올라간 사람 조합 몇번바뀜?
+'''
+honor =[]
+ans = 1
+a,b = 0,0
+pos_a =[]
+pos_b =[]
+
+# a,b 위치 기록
+for i in range(N):
+    for _ in range(t[i]):
+        a += v[i]
+        pos_a.append(a)
+for i in range(M):
+    for _ in range(t2[i]):
+        b += v2[i]
+        pos_b.append(b)
+
+# 명예의 전당 
+for a,b in zip(pos_a,pos_b):
+    if a==b:
+        honor.append('a,b')
+    elif a>b:
+        honor.append('a')
     else:
-        lst.append('AB')
+        honor.append('b')
 
-# A[0], B[0]은 0이기 때문에, 이 기록은 포함하지 않기 위해 2부터 시작
-for i in range(2, A_time+1):
-    if lst[i-1] != lst[i]:
-        answer += 1
-
-print(answer)
+# 조합 변경 횟수 카운팅
+prev = honor[0]
+for i in range(1,len(honor)):
+    if prev != honor[i]:
+        ans+=1
+        prev = honor[i]
+    else:
+        continue
+print(ans)
