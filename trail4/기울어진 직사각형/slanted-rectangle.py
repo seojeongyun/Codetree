@@ -1,60 +1,39 @@
 n = int(input())
-
 grid = [list(map(int, input().split())) for _ in range(n)]
 
-answer = 0
-
-
-def get_rectangle(y, x, len_y, len_x):
+# Please write your code here.
+ans = 0
+def get_rectangle(i,j,leni,lenj):
+    cy,cx = i,j
     coords = []
-
-    # 우상 → 좌상 → 좌하 → 우하
-    directions = [
-        (-1, 1, len_y),
-        (-1, -1, len_x),
-        (1, -1, len_y),
-        (1, 1, len_x)
-    ]
-
-    cy, cx = y, x
-
-    for dy, dx, length in directions:
+    directions = [(-1,1,leni), # 우상
+                  (-1,-1,lenj), # 좌상
+                  (1,-1,leni), #좌하
+                  (1,1,lenj)  # 우하
+                   ] 
+    for dy,dx,length in directions:
         for _ in range(length):
 
-            if not (0 <= cy < n and 0 <= cx < n):
-                return None
-
-            coords.append((cy, cx))
-
+            if not(0<=cy<n and 0<=cx<n):
+                continue
+            
+            coords.append((cy,cx))
             cy += dy
             cx += dx
-
-    # 한 바퀴 돌았으면 반드시 시작점으로 복귀
-    if (cy, cx) != (y, x):
-        return None
-
-    return coords
+    if (cy,cx) == (i,j):
+        return coords
 
 
-# 시작점 선택
+# 시작점 순회
 for i in range(n):
     for j in range(n):
-
-        # 우상 / 좌상 확장 범위 설정
-        for len_i in range(1, n):
-            for len_j in range(1, n):
-
-                coords = get_rectangle(i, j, len_i, len_j)
-
-                if coords is None:
-                    continue
-
-                val = 0
-
-                for y, x in coords:
-                    val += grid[y][x]
-
-                answer = max(answer, val)
-
-
-print(answer)
+        # 마름모 크기 순회
+        for leni in range(1,n):
+            for lenj in range(1,n):
+                coords = get_rectangle(i,j,leni,lenj)
+                if coords:
+                    val = 0
+                    for y,x in coords:
+                        val += grid[y][x]
+                    ans = max(ans,val)
+print(ans)
