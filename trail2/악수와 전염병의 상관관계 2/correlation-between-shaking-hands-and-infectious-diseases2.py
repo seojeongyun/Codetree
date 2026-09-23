@@ -1,67 +1,59 @@
-# N명의 개발자, T개의 악수 기록
-    # 어떤 두 개발자가 몇 초에 악수를 나눴는지를 의미
+N, K, P, T = map(int, input().split())
+handshakes = [tuple(map(int, input().split())) for _ in range(T)] # t초, x&y 악수
 
-# 전염병 옮김
-    # 처음에는 P번 개발자 한 명만 전염병에 감염되어 있음
-        # 전염병을 옮길 수 있는 악수는 K번 남음
-    # 어떤 개발자가 감염되면 k번 악수 동안 전염병을 옮길 수 있음.
+# Please write your code here.
+'''
+N 개발자 수, T 악수 기록 / 각 기록= 어떤 두 개발자가 몇초에 악수?
 
-# 전염 가능한 상태
-    # 어떤 개발자가 감염되어 있고 남은 전염 횟수가 1번 이상인 상태
+1. P번 개발자 1명만 전염병 감염
+2. 감연된 개발자가 전염병 옮길 수 있는 횟수 K
+3. K번 다쓰면 옮기지는 x, 감염된 상태는 유지
 
-# 악수 처리
-    # 시각이 이른 것 부터
-    # 악수에 참여한 두 개발자 각각에 대해, 그 개발자가 전염 가능한 상태였다면 남은 전염 횟수 1 줄어듦 (둘 다 전가상이면 각각 1회 차감)
-    # 한 쪽만 전가상이고 다른 쪽이 감염되어있지 않았으면, 다른 쪽은 감염되고 감염횟수 K번을 받음
+악수 = 시간 이른 것 부터 하나씩 처리
+각 악수는 그 악수가 일어나기 직전 상태를 기준으로 다음 처리
+1. 악수 참여한 두 개발자 각각, 그 개발자가 전염 가능한 상태였으면(= 걸려있었으면) 전염횟수 -1
+2. 한쪽 걸리고 다른쪽 감염x상태면: 다른쪽은 새로 감염 and K번 할당받음
+3. 모두 감염상태 = 양쪽 다 K -=1
 
-# 최종적으로 누가 전염병에 걸렸는지 알아내는 프로그램 작성
+모든 악수를 처리한 뒤 최종적으로 누가 전염병에 걸리게 되는지?
+'''
+# 개발자 (감염 여부, 전염 횟수)
+human = [[0,K] for i in range(N+1)]
+# 초기 감염자 
+human[P] = [1,K]
 
-import sys
-input = sys.stdin.readline
-
-# [1] 데이터 입력 받기
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-N, K, P, T = map(int, input().strip().split())
-
-# ti, xi, yi = ti초에 xi번과 yi번이 악수를 나눴음을 의미
-handshakes = [list(map(int, input().strip().split())) for _ in range(T)]
-# -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+# 악수: 시간 이른것부터 처리
+handshakes.sort(key=lambda x:x[0])
 
 
-# [2] 각 개발자의 상태를 배열로 관리
-    # 감염 여부, 남은 횟수
-developers = []
-for i in range(1,N+1):
-    if i == P:
-        developers.append([1, K])
+# 악수 수행
+for t, h1, h2 in handshakes:
+    # 둘 다 감염되어 있으면 K -= 1
+    if human[h1][0] and human[h2][0]:
+        if human[h1][1] > 0:
+            human[h1][1] -= 1
+        if human[h2][1] > 0:
+            human[h2][1] -= 1
+    # 둘 중 한명만 감염되있으면, 감염된 사람만 K-=1
+    elif human[h1][0] or human[h2][0]:
+        if human[h1][0]: # h1이 감염된 상태면
+            if human[h1][1] > 0:#전염 횟수가 유효하면
+                human[h1][1] -=1
+                human[h2][0] = 1
+        else:
+            if human[h2][1] > 0:
+                human[h2][1] -= 1
+                human[h1][0] = 1
     else:
-        developers.append([0, 0])
+        continue
 
-
-# [3] 악수 처리: 시각이 이른 것 부터 처리해야하므로 시간 기준 sorting
-# 누구누구가 악수했는지가 감염 여부를 따지는 거니까 ti가 갖는 의미는 없는 거 같음. 그냥 sorting 기준인듯?
-handshakes.sort(key=lambda x: x[0])
-# 순차적으로 악수 처리
-for t, x, y in handshakes:
-    x_is_infection, x_count = developers[x-1]
-    y_is_infection, y_count = developers[y-1]
-    
-    # 만약 x나 y중 감염자가 있었다면, 감염 여부 및 남은 횟수 갱신
-    # x만 감염자인지, y만 감염자인지, x-y 모두 감염자인지에 따라 달라짐
-    if x_is_infection and not y_is_infection: # x만 감염자
-        developers[x-1] = [x_is_infection, x_count-1]
-        if x_count > 0:
-            developers[y-1] = [1, K]
-
-    elif y_is_infection and not x_is_infection:
-        developers[y-1] = [y_is_infection, y_count-1]
-        if y_count > 0:
-            developers[x-1] = [1, K]
-
-    elif x_is_infection and y_is_infection:
-        developers[x-1] = [x_is_infection, x_count-1]
-        developers[y-1] = [y_is_infection, y_count-1]
-
-
-for developer in developers:
-    print(developer[0], end='')
+# 악수 끝나고 전염된 사람 찾기
+ans = ''
+for i in range(len(human)):
+    if i==0:
+        continue
+    if human[i][0]:
+        ans += '1'
+    else:
+        ans += '0'
+print(ans)
