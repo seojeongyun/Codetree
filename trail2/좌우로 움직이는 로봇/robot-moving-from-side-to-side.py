@@ -1,74 +1,68 @@
-# 1차원 직선 위에서 1초에 한 칸 씩 좌우로 움직이는 로봇 A, B
-    # A가 움직이는 횟수 N
-    # B가 움직이는 횟수 M
+n, m = map(int, input().split())
 
-# A와 B가 직전에는 서로 다른 위치에 있다가 같은 지점에 위치하는 경우가 몇 번인지 구하시오
-    # A = 5, B = 5
-    # A = 6, B = 6
-    # A = 7, B = 7 .. 이런 경우에는 5 6 7 모두 같은 위치에 있었으므로, 직전에 다른 위치에 있다가 같은 지점에서 위치한다는 규칙에 해당X
+# Process robot A's movements
+t = []
+d = []
+for _ in range(n):
+    time, direction = input().split()
+    t.append(int(time))
+    d.append(direction)
 
-# A,B는 처음에 같은 지점에서 움직이며 이는 횟수에 포함 X
-# 각 로봇이 움직임을 종료한 이후에는 같은 위치에 머물러 있음
-    # 다른 로봇이 움직여 두 로봇이 같은 위치에 존재할 수 있음.
-    # A,B의 이동 횟수가 다르다는 말인듯.
+# Process robot B's movements
+t_b = []
+d_b = []
+for _ in range(m):
+    time, direction = input().split()
+    t_b.append(int(time))
+    d_b.append(direction)
 
-import sys
-input = sys.stdin.readline
-answer = 0
+# Please write your code here.
+'''
+1차원 직선 위 1초에 1칸씩. 좌우.
+A: N번 움직, 얼마나.어느방향으로 움직 = t, d
+B: M번 움직 
 
-N, M = map(int, input().strip().split())
+A,B 바로 직전에 다른위치에 있다가 그 다음번에 같은 위치에 오게 되는 경우 몇번?
 
-# 문제에서 이동 거리 합 200만 이하임을 제공
-MAX_SIZE = 2000001
+처음 = 같은 지점에서 움직, 횟수에 포함 x
 
-# A, B 관리 배열
-A = [0] * MAX_SIZE
-B = [0] * MAX_SIZE
+로봇 움직인 종료 이후 = 같은 위치에 머물러 있음
+'''
+# 1. 로봇 이동 위치 저장
+a,b = 0,0
+pos_a = []
+pos_b = []
 
-# A 이동 관리
-A_start = 0
-for _ in range(N):
-    time, dir = input().strip().split()
-    for t in range(A_start, A_start+int(time)):
-        dist = 1 if dir == 'R' else -1
-        A[t] = A[t-1] + dist
-    A_start += int(time)
+for i in range(n):
+    for _ in range(t[i]):
+        if d[i] == 'L':
+            a -= 1
+        else:
+            a += 1
+        pos_a.append(a)
 
-# B 이동 관리
-B_start = 0
-for _ in range(M):
-    time, dir = input().strip().split()
-    for t in range(B_start, B_start+int(time)):
-        dist = 1 if dir == 'R' else -1
-        B[t] = B[t-1] + dist
-    B_start += int(time)
+for j in range(m):
+    for _ in range(t_b[j]):
+        if d_b[j] == 'L':
+            b -= 1
+        else:
+            b += 1
+        pos_b.append(b)
 
-# print(*A)
-# print(*B)
 
-# 정답 처리: 두 구간으로 분리. 같이 움직이는 구간 + A 혹은 B만 움직이는 구간
-min_time = A_start if A_start < B_start else B_start
-max_time = A_start if A_start > B_start else B_start
+# 2. 길이 맞추기
+max_len = max(len(pos_a), len(pos_b))
+for _ in range(max_len-len(pos_a)):
+    pos_a.append(pos_a[-1])
+for _ in range(max_len-len(pos_b)):
+    pos_b.append(pos_b[-1])
 
-# [1] 같이 움직이는 구간
-for i in range(1, min_time+1):
-    # 서로 다른 위치에 있다가 동일한 위치로 오게 된 경우만 카운트
-    if A[i-1] != B[i-1] and A[i] == B[i]:
-        answer += 1
-
-# [2] A 혹은 B만 움직이는 구간
-if min_time != max_time:
-    for i in range(min_time, max_time+1):
-        # A가 B보다 적게 움직인 경우
-        if min_time == A_start:
-            # A는 정지해있는데, B가 이동하면서 A와 같은 위치에 위치하는 경우
-            if A[min_time-1] == B[i]:
-                answer += 1
-
-        # B가 A보다 적게 움직인 경우
-        elif min_time == B_start:
-            # B는 정지해있는데, A가 이동하면서 B와 같은 위치에 위치하는 경우
-            if B[min_time-1] == A[i]:
-                answer += 1
-            
-print(answer)
+# 3. 직전 다른 위치, 다음번 같은 위치 오게 되는 경우 총 몇 번인지 카운팅
+prev_a,prev_b = 0,0
+ans = 0
+for a,b in zip(pos_a,pos_b):
+    if a==b and prev_a != prev_b:
+        ans += 1
+    prev_a = a
+    prev_b = b
+print(ans)
