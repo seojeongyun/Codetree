@@ -11,7 +11,6 @@ nxn 격자
 ans = -1
 for i in range(n):
     for j in range(n):
-        if j+2< n:
-            if grid[i][j:j+3]:
-                ans = max(sum(grid[i][j:j+3]),ans)
+        if j+2< n and grid[i][j:j+3]:
+            ans = max(sum(grid[i][j:j+3]),ans)
 print(ans)
