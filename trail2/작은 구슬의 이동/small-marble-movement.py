@@ -1,46 +1,39 @@
-# 격자: N x N
-    # 한 개의 구슬이 놓여있고, 1초에 한 칸 씩 상하좌우중 특정 방향으로 이동
+'''
+NxN 격자 안 1개 구슬
+상하좌우 중 특정 방향 1초에 1칸
 
-# 구슬의 이동
-    # 벽에 부딪히면 움직이는 방향 반대로 이동
-    # 방향 바꾸는데 1초 소요
-        # 이 순간엔 원래 있던 칸에 그대로 머무름
-        # 즉, 벽에 부딪히면 방향만 변경
+가장 왼쪽위 (1행,1열), 가장 오른쪽 아래 (N행,N열)
+초기: 구슬 = 1행 2열, 왼쪽으로 향하는 구슬
 
-# 구슬의 처음 위치와 초기 방향이 주어졌을 때, T초가 지난 후의 구슬 위치를 구하시오
+구슬 벽에 부딪히면 움직이는 방향 반대로, 동일 속도로 움직이는 것 반복
+방향 바꾸는데 1초 시간 소요 -> 1초 동안 위치변화 x
 
-import sys
-input = sys.stdin.readline
+벽이 아니라면 바라보는 방향으로 1칸 이동
 
-N, T = map(int, input().strip().split())
-ci, cj, dir = input().strip().split() # ci, cj 는 str
-ci, cj = int(ci), int(cj)
+처음 위치, 초기 방향 주어질 때 
+T초가 지난 이후 구슬 위치?
+'''
 
-dir_dict = {
-    'U': 2,
-    'D': 1,
-    'R': 0,
-    'L': 3
-}
+# 입력
+N, T = map(int, input().split())
+R, C, D = input().split() # 구슬 초기 위치(r,c), 방향(d)
+R, C = int(R)-1, int(C)-1
+direc = {'U':0 ,'D':3 ,'R':1 ,'L':2}
+D = direc[D]
 
-di, dj = (0, 1, -1, 0), (1, 0, 0, -1) # dir_num 0과 3을 쌍으로, 1과 2를 쌍으로.
-dir_num = dir_dict[dir]
+dys, dxs = [-1,0,0,1],[0,1,-1,0]
 
-for _ in range(T):
-    ni, nj = ci + di[dir_num], cj + dj[dir_num]
-    
-    if dir_num == 0 or dir_num == 3: # 좌우 이동
-        if nj == N+1 or nj == 0: # 벽에 부딪히면 방향만 바꿈
-            dir_num = 3 - dir_num
-        else: # 벽에 부딪히지 않으면 앞으로 전진
-            ci, cj = ni, nj
+def in_range(x,y):
+    return 0<=x<N and 0<=y<N
 
-    if dir_num == 1 or dir_num == 2:
-        if ni == N+1 or ni == 0:
-            dir_num = 3 - dir_num
-        else:
-            ci, cj = ni, nj
-
-    # print(ci, cj)
-print(ci, cj)
-
+# T초 동안
+for t in range(T):
+    nr, nc = R+dys[D], C+dxs[D]
+    # 위치가 벽이면: 방향변화
+    if not in_range(nr,nc):
+        # 방향 변화: D 
+        D = abs(3-D) # 2-1 = 1
+    # 아니면 위치이동
+    else:
+        R,C = nr, nc
+print(R+1, C+1)
