@@ -7,20 +7,38 @@ import sys
 
 input = sys.stdin.readline
 
+
 def print_map(arr):
     for row in arr:
         print(' '.join(f'{x:2}' for x in row))
 
+
 def check():
     lst = []
+    valid = False
     for j in range(N):
-        start = 0
-        for i in range(1, N+1):
-            if i == N or arr[i][j] != arr[start][j]:
-                if arr[start][j] != 0 and i - start >= M:
-                    lst.append([(r, j) for r in range(start, i)])
-                start = i
-    return lst
+        v_lst = [arr[0][j]]
+        c_lst = [[0, j]]
+        for i in range(1, N):
+            if arr[i][j] > 0 and arr[i][j] == arr[i - 1][j]:
+                v_lst.append(arr[i][j])
+                c_lst.append([i, j])
+
+            else:
+                if len(v_lst) >= M and v_lst[0] != 0:
+                    lst.append(c_lst)
+                    valid = True
+                v_lst = [arr[i][j]]
+                c_lst = [[i, j]]
+
+        if len(v_lst) >= M and v_lst[0] != 0:
+            valid = True
+            lst.append(c_lst)
+
+    if not valid:
+        return []
+    else:
+        return lst
 
 
 def boom(bomb_lst):
@@ -30,7 +48,6 @@ def boom(bomb_lst):
 
 
 def drop():
-    global arr
     new_arr = [[0] * N for _ in range(N)]
 
     for j in range(N):
@@ -40,10 +57,9 @@ def drop():
                 new_arr[N - 1 - cnt][j] = arr[i][j]
                 cnt += 1
 
-    # for i in range(N):
-    #     for j in range(N):
-    #         arr[i][j] = new_arr[i][j]
-    arr = new_arr
+    for i in range(N):
+        for j in range(N):
+            arr[i][j] = new_arr[i][j]
 
 
 def rotate():
@@ -64,10 +80,8 @@ answer = 0
 
 if N == 1 and M == 1:
     print(0)
-
 elif N == 1 and M > 1:
     print(1)
-    
 else:
     for _ in range(K+1):
         while True:
