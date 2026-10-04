@@ -116,7 +116,7 @@ walls_idx = 0
 for k in range(K):
     value = 0
     # [회전 결정]
-    rotate_info = [-1, [4, 0, 0]]
+    rotate_info = (0, 4, 0, 0)
     for i in range(1, 4):
         for j in range(1, 4):
             ci, cj = i, j  # 회전 중심점
@@ -133,31 +133,15 @@ for k in range(K):
 
                 # 유물의 1차 가치 판단
                 score = get_score(rotated_arr, remove=False)
-                if rotate_info[0] < score:
-                    rotate_info[0] = score
-                    rotate_info[1] = [degree, ci, cj]
-
-                elif rotate_info[0] == score:
-                    if rotate_info[1][0] > degree:
-                        rotate_info[0] = score
-                        rotate_info[1] = [degree, ci, cj]
-
-                    elif rotate_info[1][0] == degree:
-                        if rotate_info[1][2] > cj:
-                            rotate_info[0] = score
-                            rotate_info[1] = [degree, ci, cj]
-
-                        elif rotate_info[1][2] == cj:
-                            if rotate_info[1][1] > ci:
-                                rotate_info[0] = score
-                                rotate_info[1] = [degree, ci, cj]
+                if rotate_info > (-score, degree, cj, ci):
+                    rotate_info = (-score, degree, cj, ci)
 
     if rotate_info[0] == 0:
         break
 
     # [1차 가치가 높은 회전 정보로 회전]
-    for degree in range(rotate_info[1][0]+1):
-        ci, cj = rotate_info[1][1], rotate_info[1][2]
+    for degree in range(rotate_info[1]+1):
+        ci, cj = rotate_info[3], rotate_info[2]
         if degree == 0:
             rotated_arr = rotate(ci, cj, arr)
         else:
