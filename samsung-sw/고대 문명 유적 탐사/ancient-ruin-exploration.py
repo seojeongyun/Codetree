@@ -51,24 +51,9 @@ def in_range(i, j):
 def rotate(ci, cj, arr):
     rot_arr = [row[:] for row in arr]
 
-    a, b, c = arr[ci - 1][cj - 1:cj + 2]
-    for i, v in ((ci - 1, a), (ci, b), (ci + 1, c)):
-        rot_arr[i][cj + 1] = v
-
-    lst = []
-    for i in (ci - 1, ci, ci + 1):
-        lst.append(arr[i][cj + 1])
-    rot_arr[ci + 1][cj - 1:cj + 2] = lst[::-1]
-
-    a, b, c = arr[ci + 1][cj - 1:cj + 2]
-    for i, v in ((ci - 1, a), (ci, b), (ci + 1, c)):
-        rot_arr[i][cj - 1] = v
-
-    lst = []
-    for i in (ci - 1, ci, ci + 1):
-        lst.append(arr[i][cj - 1])
-    rot_arr[ci - 1][cj - 1:cj + 2] = lst[::-1]
-
+    for i in range(3):
+        for j in range(3):
+            rot_arr[ci+i][cj+j] = arr[ci+3-j-1][cj+i]
     return rot_arr
 
 def bfs(i, j, v, arr, target):
@@ -113,61 +98,50 @@ arr = [list(map(int, input().strip().split())) for _ in range(5)]
 walls = list(map(int, input().strip().split()))
 
 walls_idx = 0
+
+
 for k in range(K):
-    value = 0
-    # [회전 결정]
-    rotate_info = (0, 4, 0, 0)
-    for i in range(1, 4):
-        for j in range(1, 4):
-            ci, cj = i, j  # 회전 중심점
+    max_val = 0
+    for rot in range(1, 4):
+        for j in range(3):
+            for i in range(3):
+                ci, cj = i, j  # 회전 중심점
 
-            # 회전 시뮬레이션
-            for degree in range(3):
-                if degree == 0:
-                    rotated_arr = rotate(ci, cj, arr)
-                else:
-                    rotated_arr = rotate(ci, cj, rotated_arr)
-
-                # print_map(rotated_arr)
-                # print('-------')
+                # 회전 시뮬레이션
+                n_arr = [x[:] for x in arr]
+                for _ in range(rot):
+                    n_arr = rotate(ci, cj, n_arr)
 
                 # 유물의 1차 가치 판단
-                score = get_score(rotated_arr, remove=False)
-                if rotate_info > (-score, degree, cj, ci):
-                    rotate_info = (-score, degree, cj, ci)
+                score = get_score(n_arr, remove=False)
+                if max_val < score:
+                    max_val = score
+                    m_arr = n_arr
 
-    if rotate_info[0] == 0:
+    if max_val == 0:
         break
 
-    # [1차 가치가 높은 회전 정보로 회전]
-    for degree in range(rotate_info[1]+1):
-        ci, cj = rotate_info[3], rotate_info[2]
-        if degree == 0:
-            rotated_arr = rotate(ci, cj, arr)
-        else:
-            rotated_arr = rotate(ci, cj, rotated_arr)
-
     # [유물 연쇄 획득]
+    value = 0
+    arr = m_arr
     while True:
-        score = get_score(rotated_arr, remove=True)
-        # print_map(rotated_arr)
-        # print('-------')
-        value += score
-
-        if score < 3:
+        score = get_score(arr, remove=True)
+        if score == 0:
             break
+        value += score
 
         # [유물 생성]
         for j in range(5):
             for i in range(5-1, -1, -1):
-                if not rotated_arr[i][j]:
-                    rotated_arr[i][j] = walls[walls_idx]
+                if not arr[i][j]:
+                    arr[i][j] = walls[walls_idx]
                     walls_idx += 1
 
         # print_map(rotated_arr)
         # print('-------')
 
     print(value, end=' ')
-    arr = [row[:] for row in rotated_arr]
 
     # print_map(rotated_arr)
+
+
