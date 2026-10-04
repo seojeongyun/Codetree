@@ -1,121 +1,118 @@
-# 격자: N x N
+'''
+1 이상 100 이하 숫자 NxN
 
-# 각 열 기준으로 연속으로 M개 이상 같은 숫자가 적혀있는 폭탄이 터짐
-# 이후 중력에 의해 남은 폭탄들이 떨어짐
+열 기준 처리
+    1. 행으로 봤을 때 연속으로 M개 이상 같은 숫자가 적힌 폭탄은 터짐
+    2. 중력에 의해 폭탄들 drop
+    3. M개 이상 연속한 폭탄은 전부 터짐
+        3-1. M개 이상 폭탄 쌍 여러개: 동시에 터짐
+        터진 이후에 같은 열에 M개이상 같은 숫자 있으면 없어질때까지 터뜨리는 거 반복
+[동작]
+K번 반복
+    [1] 조건에 맞는 폭탄 터뜨리기
+    [2] 아래로 떨어뜨리기   
+    [3] 터진 과정 반복 후 상자 시계방향으로 90도 돌리기
+    [4] 아래로 떨어뜨리기  
+K번 회전 진행 후에도 터질 폭탄 남아있으면, 다 터뜨리고 최종 상자 구하기
 
-import sys
-
-input = sys.stdin.readline
-
-
-def print_map(arr):
+[출력]
+최종적으로 남은 폭탄 수
+'''
+def debug_print(arr):
     for row in arr:
-        print(' '.join(f'{x:2}' for x in row))
+        print(*row)
 
+# 입력
+N,M,K = tuple(map(int,input().split()))
+arr =[list(map(int,input().split())) for _ in range(N)]
 
-def check():
-    lst = []
-    valid = False
-    for j in range(N):
-        v_lst = [arr[0][j]]
-        c_lst = [[0, j]]
-        for i in range(1, N):
-            if arr[i][j] > 0 and arr[i][j] == arr[i - 1][j]:
-                v_lst.append(arr[i][j])
-                c_lst.append([i, j])
-
-            else:
-                if len(v_lst) >= M and v_lst[0] != 0:
-                    lst.append(c_lst)
-                    valid = True
-                v_lst = [arr[i][j]]
-                c_lst = [[i, j]]
-
-        if len(v_lst) >= M and v_lst[0] != 0:
-            valid = True
-            lst.append(c_lst)
-
-    if not valid:
-        return []
-    else:
-        return lst
-
-
-def boom(bomb_lst):
-    for lst in bomb_lst:
-        for i, j in lst:
-            arr[i][j] = 0
-
+def rotate(): # 시계, 90도
+    arr[:] = [list(row) for row in zip(*(arr[::-1]))]
 
 def drop():
-    new_arr = [[0] * N for _ in range(N)]
-
+    tmp = [[0]*N for _ in range(N)]
+    
+    # 열 단위 수행
     for j in range(N):
-        cnt = 0
-        for i in range(N - 1, -1, -1):
+        next_row = N-1
+        for i in range(N-1,-1,-1):
+            # 0이 아닌 값 tmp에 저장
             if arr[i][j]:
-                new_arr[N - 1 - cnt][j] = arr[i][j]
-                cnt += 1
+                tmp[next_row][j] = arr[i][j]
+                next_row -= 1
+    
+    arr[:] = tmp
 
-    for i in range(N):
-        for j in range(N):
-            arr[i][j] = new_arr[i][j]
+def bomb():
+    # 열 단위 수행    
+    for j in range(N):
+        prev = -1
+        same_cnt = 0
+        bomb_coord = []
+        
+        # 행 단위 수행
+        for i in range(N-1,-1,-1):
+            
+            # 0이면 continue
+            if not arr[i][j]:
+                if same_cnt >= M:
+                    for r in bomb_coord:
+                        arr[r][j] = 0
+                prev = -1
+                same_cnt=0
+                bomb_coord = []
+                continue
+            
+            # prev 없으면
+            if prev == -1:
+                prev = arr[i][j]
+                same_cnt = 1
+                bomb_coord=[i]
 
-
-def rotate():
-    new_arr = [[0] * N for _ in range(N)]
-    for i in range(N):
-        for j in range(N):
-            new_arr[i][j] = arr[N - 1 - j][i]
-
-    for i in range(N):
-        for j in range(N):
-            arr[i][j] = new_arr[i][j]
-    return
-
-
-N, M, K = map(int, input().strip().split())
-arr = [list(map(int, input().strip().split())) for _ in range(N)]
-answer = 0
-
-if N == 1 and M == 1:
-    print(0)
-elif N == 1 and M > 1:
-    print(1)
-else:
-    for _ in range(K+1):
-        while True:
-            # 체크
-            bomb_lst = check()
-            # print(bomb_lst)
-
-            if len(bomb_lst) > 0:
-                # 폭발
-                boom(bomb_lst)
-                # print('---bomb---')
-                # print_map(arr)
-
-                # 중력
-                drop()
-                # print('---drop---')
-                # print_map(arr)
-
+            # 현재 값과 이전값이 같으면
+            # 개수 카운팅, 좌표 저장
+            elif prev == arr[i][j]: 
+                same_cnt += 1
+                bomb_coord.append(i)
             else:
-                break
+                # 값이 달라지면 prev 갱신
+                prev = arr[i][j]
+                # same_cnt가 M이상인지 확인
+                # 이상이면 폭탄 터뜨리기 = 해당 좌표값 0으로 만들기
+                if same_cnt >= M:
+                    for r in bomb_coord:
+                        arr[r][j] = 0
+               
+                same_cnt = 1
+                bomb_coord = [i]
+        if same_cnt >= M:
+            for r in bomb_coord:
+                arr[r][j] = 0
 
-        # 회전
-        rotate()
-        # print('---rotate---')
-        # print_map(arr)
-
-        # 중력
+def bomb_until_stable():
+    while True:
+        # 종료조건: 이전 arr과 bomb을 수행한 후 배열 동일
+        before = [row[:] for row in arr]
+        bomb()
+        if before==arr:
+            break
         drop()
-        # print('---drop---')
-        # print_map(arr)
+        
+for _ in range(K):
+    bomb_until_stable()
+    drop()
+    rotate()
+    drop()
 
-    for i in range(N):
-        for j in range(N):
-            if arr[i][j]:
-                answer += 1
 
-    print(answer)
+bomb_until_stable()
+
+
+cnt = 0
+for i in range(N):
+    for j in range(N):
+        if arr[i][j]:
+            cnt+=1
+print(cnt)
+
+
