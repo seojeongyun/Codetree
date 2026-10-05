@@ -78,6 +78,7 @@ def search(ti, tj):
         ci, cj = q.popleft()
         if (ci, cj) == (N - 1, N - 1):
             found = True
+            break
 
         #
         for di, dj in ((0, 1), (1, 0), (0, -1), (-1, 0)):
