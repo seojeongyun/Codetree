@@ -83,8 +83,8 @@ def move(devices):
         
         if len(lst) > 0: # 먼지가 없는 공간에 고립된 청소기는 lst가 없을 수 있음
             # 가장 가까운 격자가 여러개일 때, 행 번호 작은 -> 열 번호 작은
-            lst.sort(key=lambda x: (x[0], x[1], x[2]))
-            _, ei, ej = lst[0]
+            # lst.sort(key=lambda x: (x[0], x[1], x[2]))
+            _, ei, ej = min(lst)
             
             d_arr[i][j] = 0
             d_arr[ei][ej] = -2
