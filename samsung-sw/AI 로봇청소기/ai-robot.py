@@ -54,13 +54,18 @@ def in_range(i, j):
 
 
 def bfs(i, j):
+    if arr[i][j] > 0:
+        return i, j
+
     v = [[0] * N for _ in range(N)]
     v[i][j] = 1
 
     q = deque([[i, j]])
 
     lst = []
-
+    #
+    best = None
+    # 
     while q:
         ci, cj = q.popleft()
         if arr[ci][cj] > 0:
@@ -73,22 +78,32 @@ def bfs(i, j):
                 v[ni][nj] = v[ci][cj] + 1
                 q.append([ni, nj])
 
-    return lst
+                if arr[ni][nj] > 0:
+                    candidate = (v[ni][nj], ni, nj)
+
+                    if best is None or candidate < best:
+                        best = candidate
+    # return lst
+    if best is None:
+        return i, j   
+
+    _, i, j = best
+    return i, j
 
 
 def move(devices):
     for idx, (id, i, j) in enumerate(devices):
         # 이동거리가 가장 가까운 오염된 격자로 이동
-        lst = bfs(i, j)
+        ei, ej = bfs(i, j)
         
-        if len(lst) > 0: # 먼지가 없는 공간에 고립된 청소기는 lst가 없을 수 있음
+        # if len(lst) > 0: # 먼지가 없는 공간에 고립된 청소기는 lst가 없을 수 있음
             # 가장 가까운 격자가 여러개일 때, 행 번호 작은 -> 열 번호 작은
             # lst.sort(key=lambda x: (x[0], x[1], x[2]))
-            _, ei, ej = min(lst)
-            
-            d_arr[i][j] = 0
-            d_arr[ei][ej] = -2
-            devices[idx] = [id, ei, ej]
+        # ei, ej = min(lst)
+        
+        d_arr[i][j] = 0
+        d_arr[ei][ej] = -2
+        devices[idx] = [id, ei, ej]
 
 
 def clean(arr, devices):
