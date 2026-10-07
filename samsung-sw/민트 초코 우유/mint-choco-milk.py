@@ -135,7 +135,7 @@ def make_believe(b_arr, boss_lst, group_lst):
     return b_arr
 # -----------------------------------
 def spread(dir_num, food, coords, believe, please, group):
-    block = []
+    block = set()
     bi, bj = coords
     while True:
         ni, nj = bi + dis[dir_num], bj + djs[dir_num]
@@ -155,13 +155,13 @@ def spread(dir_num, food, coords, believe, please, group):
                 f_arr[ni][nj] = food
                 please -= (b_arr[ni][nj]+1)
                 b_arr[ni][nj] += 1
-                block.append([ni, nj])
+                block.add((ni, nj))
             # 약한 전파
             elif please <= b_arr[ni][nj]:
                 f_arr[ni][nj] = f_arr[ni][nj] | f_arr[bi][bj]
                 b_arr[ni][nj] += please
                 please = 0
-                block.append([ni, nj])
+                block.add((ni, nj))
             bi, bj = ni, nj
 
     return block
@@ -200,9 +200,9 @@ for _ in range(T):
     # 대표자 리스트에서 우선순위 설정
     boss_lst.sort(key=lambda x: (-x[4], -x[2], x[1][0], x[1][1]))
 
-    block_lst = []
+    block_lst = set()
     for food, coords, believe, please, group in boss_lst:
-        if coords in block_lst:
+        if tuple(coords) in block_lst:
             continue
 
         # 전파 방향 설정: 각 대표자의 신앙심 B를 4로 나눈 나머지
@@ -214,9 +214,9 @@ for _ in range(T):
 
         # 전파
         block_coords = spread(dir_num, food, coords, believe, please, group)
-        if block_coords != []:
-            for lst in block_coords:
-                block_lst.append(lst)
+        if len(block_coords) > 0:
+            for set_ in block_coords:
+                block_lst.add(set_)
     # 출력:
     for f in (7, 3, 5, 6, 4, 2, 1):
         sm = 0
