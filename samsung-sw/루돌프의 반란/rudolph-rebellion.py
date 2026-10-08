@@ -81,31 +81,19 @@ def move_r(ri, rj):
     dist = get_dist(ti, tj, ri, rj)
     # 8방향 중 target 위치로 가까워지는 방향으로 돌진
     if ti == ri:
-        for dir, di, dj in ((0, 0, 1), (4, 0, -1)):
-            n_ri, n_rj = ri + di, rj + dj
-            if in_range(n_ri, n_rj):
-                moved_dist = get_dist(ti, tj, n_ri, n_rj)
-                if dist > moved_dist:
-                    dist = moved_dist
-                    r_dir, i, j = dir, n_ri, n_rj
-
+        diff = ((0, 0, 1), (4, 0, -1))
     elif tj == rj:
-        for dir, di, dj in ((2, 1, 0), (6, -1, 0)):
-            n_ri, n_rj = ri + di, rj + dj
-            if in_range(n_ri, n_rj):
-                moved_dist = get_dist(ti, tj, n_ri, n_rj)
-                if dist > moved_dist:
-                    dist = moved_dist
-                    r_dir, i, j = dir, n_ri, n_rj
-
+        diff = ((2, 1, 0), (6, -1, 0))
     else:
-        for dir, di, dj in ((7, -1, 1), (1, 1, 1), (3, 1, -1), (5, -1, -1)):
-            n_ri, n_rj = ri + di, rj + dj
-            if in_range(n_ri, n_rj):
-                moved_dist = get_dist(ti, tj, n_ri, n_rj)
-                if dist > moved_dist:
-                    dist = moved_dist
-                    r_dir, i, j = dir, n_ri, n_rj
+        diff = ((7, -1, 1), (1, 1, 1), (3, 1, -1), (5, -1, -1))
+
+    for dir, di, dj in diff:
+        n_ri, n_rj = ri + di, rj + dj
+        if in_range(n_ri, n_rj):
+            moved_dist = get_dist(ti, tj, n_ri, n_rj)
+            if dist > moved_dist:
+                dist = moved_dist
+                r_dir, i, j = dir, n_ri, n_rj
 
     r_arr[ci][cj] = 0
     r_arr[i][j] = -1
