@@ -28,56 +28,52 @@
 def in_range(i, j):
     return 0 <= i < L and 0 <= j < L
 # -------------------------------------------------
-def move(kn, d, trig):
-    #
-    if not v[kn]:
-        v[kn] = 1
-        # d 방향으로 한 칸 이동
-        ki, kj, h, w, k = knight[kn-1]
-        if (ki, kj, h, w, k) == (0, 0, 0, 0, 0): return
-        ni, nj = ki+dis[d], kj+djs[d]
+def move(kn, d):
+    q = []
+    pset = set()
 
-        # 이동한 위치의 영역 좌표 획득
-        knight_set = set()
+    q.append(kn-1)
+    pset.add(kn-1)
+
+    while q:
+        num = q.pop(0)
+        ci, cj, h, w, k = knight[num]
+        ni, nj = ci + dis[d], cj + djs[d]
+
+        sset = set()
         for i in range(ni, ni + h):
             for j in range(nj, nj + w):
-                knight_set.add((i, j))
+                sset.add((i, j))
+                if not in_range(i, j) or arr[i][j] == 2: # 벽을 만난다면 종료
+                    return set()
 
-        # 만약 해당 영역 내에 벽이 있다면
-        for i, j in knight_set:
-            if not in_range(i, j) or arr[i][j] == 2:
-                blocked[kn] += 1
-                return True
+        # 여기까지 왔다면 벽이 없다는 것이므로, 다른 기사의 영역과 겹치는지 확인
+        for idx, (ki, kj, h, w, k) in enumerate(knight):
+            if idx != num: # 명령을 받은 기사가 아닌, 다른 기사의 영역 좌표 획득
+                kset = set()
+                for i in range(ki, ki+h):
+                    for j in range(kj, kj+w):
+                        kset.add((i, j))
 
-        # 벽이 없다면, 이동하려는 위치에 다른 기사가 있는지 확인
-        for idx, (r, c, h, w, k) in enumerate(knight):
-            if idx != kn-1: # 명령을 받은 기사와 다른 기사여야 하고,
-                sset = set()
-                # 다른 기사의 영역 좌표 획득
-                for i in range(r, r + h):
-                    for j in range(c, c + w):
-                        sset.add((i, j))
+                # 명령을 받은 기사와 다른 기사의 영역이 겹치는지 확인
+                for i, j in sset:
+                    if (i, j) in kset:
+                        q.append(idx)
+                        pset.add(idx)
 
-                # 만약 이동한 위치가 해당 영역에 포함된다면
-                for i, j in knight_set:
-                    if (i, j) in sset:
-                        # 연쇄 반응
-                        is_block = move(idx+1, d, 1)
-                        if not is_block:
-                            attacked[idx + 1] = 1
-                            knight[idx][0], knight[idx][1] = r+dis[d], c+djs[d]
-                        else: # 연쇄 반응에서 벽이 검출되면 기사 이동 중지
-                            blocked[idx+1] += 1
-                            return True
-        if trig == 0:
-            knight[kn - 1][0], knight[kn - 1][1] = ni, nj
+    # 여기까지 왔다면, 미는 동작이 끝난 것, 좌표 갱신
+    for idx in pset:
+        knight[idx][0] += dis[d]
+        knight[idx][1] += djs[d]
+
+    return pset
 # -------------------------------------------------
-def damage(kn):
+def damage(kn, pset):
     for idx, (ki, kj, h, w, k) in enumerate(knight):
         if idx + 1 == kn: continue # 명령을 받은 기사 i라면 skip
         #
         # 밀려난 기사라면: attacked가 1이라면
-        if attacked[idx+1]:
+        if idx in pset:
             # 밀려난 곳의 w*h 직사각형 내에 놓여있는 함정의 수만큼 피해를 입는다.
             damage = 0
             for i in range(ki, ki+h):
@@ -110,20 +106,12 @@ dis, djs = (-1, 0, 1, 0), (0, 1, 0, -1)
 removed = set()
 for i, d in command:
     if i in removed: continue
-    v = [0] * (N + 1)
-    blocked = [0] * (N+1)
-    attacked = [0] * (N + 1)
 
     # 기사의 이동
-    knight_bk = [x[:] for x in knight]
-    attacked_bk = attacked[::]
-    move(i, d, 0)
-    if sum(blocked) != 0:
-        knight = knight_bk
-        attacked = attacked_bk
+    pset = move(i, d)
 
     # 데미지 처리
-    damage(i)
+    damage(i, pset)
 
     # 체력이 음수가 된 기사가 있다면, alive = 0
     for idx, (ki, kj, h, w, k) in enumerate(knight):
@@ -137,4 +125,5 @@ for idx, (ki, kj, h, w, k) in enumerate(knight):
         answer += answ_ref[idx][-1] - knight[idx][-1]
 
 print(answer)
+
 
