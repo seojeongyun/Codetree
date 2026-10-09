@@ -1,3 +1,4 @@
+from collections import deque
 # 격자 : L x L
     # (1, 1)부터 시작
     # 빈칸(0), 함정(1), 벽(2)으로 구성
@@ -29,14 +30,12 @@ def in_range(i, j):
     return 0 <= i < L and 0 <= j < L
 # -------------------------------------------------
 def move(kn, d):
-    q = []
+    q = deque([kn-1])
     pset = set()
-
-    q.append(kn-1)
     pset.add(kn-1)
 
     while q:
-        num = q.pop(0)
+        num = q.popleft()
         ci, cj, h, w, k = knight[num]
         ni, nj = ci + dis[d], cj + djs[d]
 
